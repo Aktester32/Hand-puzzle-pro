@@ -1,12 +1,24 @@
-﻿{
+{
   "name": "handpuzzle-pro",
-  "version": "2.0.0",
-  "description": "Professional Hand Gesture Puzzle Game",
-  "main": "server.js",
+  "version": "3.0.0",
+  "description": "Professional Hand Gesture Puzzle Game - Next.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
-  "keywords": ["mediapipe", "hand-tracking", "puzzle", "gesture"],
-  "license": "MIT"
+  "keywords": [
+    "mediapipe",
+    "hand-tracking",
+    "puzzle",
+    "gesture",
+    "nextjs",
+    "react"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
 }
