@@ -1,0 +1,12 @@
+﻿{
+  "name": "handpuzzle-pro",
+  "version": "2.0.0",
+  "description": "Professional Hand Gesture Puzzle Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["mediapipe", "hand-tracking", "puzzle", "gesture"],
+  "license": "MIT"
+}
