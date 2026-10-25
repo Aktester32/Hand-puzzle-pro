@@ -25,6 +25,7 @@ export default function HandPuzzleApp() {
   const [loader, setLoader] = useState({ on: true, text: 'Loading AI model…', pct: 0 });
   const [scores, setScores] = useState({ best_time: null, best_moves: null, games: 0 });
   const [flash, setFlash] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Capture UI state
   const [handL, setHandL] = useState(false);
@@ -995,67 +996,270 @@ export default function HandPuzzleApp() {
 
         <div id="flash" className={flash ? 'on' : ''} />
 
-        {/* ── START SCREEN ── */}
+        {/* ── START SCREEN (FIGMA LANDING PAGE) ── */}
         <div className={`screen ${phase === 'start' ? 'active' : ''}`} id="ss">
-          <div className="logo">🤲</div>
-          <div className="app-name">Hand<br />Puzzle Pro</div>
-          <p className="app-tag">
-            Use the <strong>Director&apos;s Frame</strong> gesture (index & thumb) to frame your shot, then open your hands to capture and solve!
-          </p>
+          {/* Top Navbar */}
+          <header className="figma-navbar">
+            <div className="figma-nav-inner">
+              <span className="figma-brand">Hand Puzzle Pro</span>
+              <nav className="figma-nav-links">
+                <a
+                  href="#home"
+                  className="figma-nav-item active"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('ss')?.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                >
+                  Home
+                </a>
+                <a
+                  href="#how-to-play"
+                  className="figma-nav-item"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('how-to-play')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  How to Play
+                </a>
+                <div className="settings-popover-wrap">
+                  <button
+                    type="button"
+                    className="figma-nav-item"
+                    onClick={() => setShowSettings((prev) => !prev)}
+                  >
+                    Settings
+                  </button>
+                  {showSettings && (
+                    <div className="settings-dropdown">
+                      <div className="settings-popover-head">
+                        <span className="settings-popover-title">Settings</span>
+                        <button
+                          type="button"
+                          className="settings-popover-close"
+                          onClick={() => setShowSettings(false)}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                      <p className="settings-popover-desc">
+                        Sound and difficulty controls become available when a game starts.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </nav>
+            </div>
+          </header>
 
-          <div className="diff-wrap">
-            <div className="diff-lbl">Select Difficulty</div>
-            <div className="diff-grid">
+          {/* Hero Section */}
+          <section className="figma-hero-section" id="home">
+            <div className="figma-hand-icon-card">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 11V6a2 2 0 0 0-4 0v4"/>
+                <path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+                <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+                <path d="M18 8a2 2 0 0 1 4 4c0 4.418-3.582 8-8 8h-2c-3.14 0-5.836-1.808-7.14-4.44L3.38 12.62a1.5 1.5 0 0 1 2.38-1.84L7.5 12.5"/>
+              </svg>
+            </div>
+            <div className="figma-badge">CAMERA PUZZLE GAME</div>
+            <h1 className="figma-hero-title">Hand Puzzle Pro</h1>
+            <p className="figma-hero-subtitle">
+              Frame your shot with your hands. Capture, solve, and sharpen your visual thinking.
+            </p>
+            <div className="figma-hero-btns">
+              <button className="btn-figma-blue" onClick={startGame}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                <span>Start playing</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+              <a
+                href="#how-to-play"
+                className="btn-figma-dark"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('how-to-play')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                How it works
+              </a>
+            </div>
+          </section>
+
+          {/* Setup Card: Select Difficulty & Current Board */}
+          <section className="figma-setup-card" id="difficulty-section">
+            <div className="figma-section-label">SELECT DIFFICULTY</div>
+            <div className="figma-diff-grid">
+              {/* Easy */}
               <div
-                className={`diff-btn ${diff === 'easy' ? 'sel' : ''}`}
+                className={`figma-diff-card ${diff === 'easy' ? 'active' : ''}`}
                 onClick={() => setDiff('easy')}
               >
-                <span className="diff-emoji">🌱</span>
-                <span className="diff-name">Easy</span>
-                <span className="diff-size">3 × 3</span>
+                <div className="figma-diff-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <rect x="3" y="3" width="4.5" height="4.5" rx="1"/>
+                    <rect x="9.75" y="3" width="4.5" height="4.5" rx="1"/>
+                    <rect x="16.5" y="3" width="4.5" height="4.5" rx="1"/>
+                    <rect x="3" y="9.75" width="4.5" height="4.5" rx="1"/>
+                    <rect x="9.75" y="9.75" width="4.5" height="4.5" rx="1"/>
+                    <rect x="16.5" y="9.75" width="4.5" height="4.5" rx="1"/>
+                    <rect x="3" y="16.5" width="4.5" height="4.5" rx="1"/>
+                    <rect x="9.75" y="16.5" width="4.5" height="4.5" rx="1"/>
+                    <rect x="16.5" y="16.5" width="4.5" height="4.5" rx="1"/>
+                  </svg>
+                </div>
+                <div className="figma-diff-title">Easy</div>
+                <div className="figma-diff-sub">3 × 3 grid</div>
               </div>
+
+              {/* Medium */}
               <div
-                className={`diff-btn ${diff === 'medium' ? 'sel' : ''}`}
+                className={`figma-diff-card ${diff === 'medium' ? 'active' : ''}`}
                 onClick={() => setDiff('medium')}
               >
-                <span className="diff-emoji">🔥</span>
-                <span className="diff-name">Medium</span>
-                <span className="diff-size">4 × 4</span>
+                <div className="figma-diff-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <g transform="rotate(45 12 12)">
+                      <rect x="6" y="6" width="3.5" height="3.5" rx="0.8"/>
+                      <rect x="11.5" y="6" width="3.5" height="3.5" rx="0.8"/>
+                      <rect x="6" y="11.5" width="3.5" height="3.5" rx="0.8"/>
+                      <rect x="11.5" y="11.5" width="3.5" height="3.5" rx="0.8"/>
+                    </g>
+                  </svg>
+                </div>
+                <div className="figma-diff-title">Medium</div>
+                <div className="figma-diff-sub">4 × 4 grid</div>
               </div>
+
+              {/* Hard */}
               <div
-                className={`diff-btn ${diff === 'hard' ? 'sel' : ''}`}
+                className={`figma-diff-card ${diff === 'hard' ? 'active' : ''}`}
                 onClick={() => setDiff('hard')}
               >
-                <span className="diff-emoji">💀</span>
-                <span className="diff-name">Hard</span>
-                <span className="diff-size">5 × 5</span>
+                <div className="figma-diff-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="4" y="4" width="16" height="16" rx="3.5" fill="none" stroke="currentColor" strokeWidth="1.6"/>
+                    <circle cx="8" cy="8" r="1.2"/>
+                    <circle cx="12" cy="8" r="1.2"/>
+                    <circle cx="16" cy="8" r="1.2"/>
+                    <circle cx="8" cy="12" r="1.2"/>
+                    <circle cx="12" cy="12" r="1.2"/>
+                    <circle cx="16" cy="12" r="1.2"/>
+                    <circle cx="8" cy="16" r="1.2"/>
+                    <circle cx="12" cy="16" r="1.2"/>
+                    <circle cx="16" cy="16" r="1.2"/>
+                  </svg>
+                </div>
+                <div className="figma-diff-title">Hard</div>
+                <div className="figma-diff-sub">5 × 5 grid</div>
               </div>
             </div>
-          </div>
 
-          <div className="score-row">
-            <div className="score-chip">
-              <div className="sc-label">Best Time</div>
-              <div className="sc-val">{scores.best_time ? fmt(scores.best_time) : '--:--'}</div>
+            <div className="figma-setup-btns">
+              <button className="btn-figma-blue" onClick={startGame}>
+                <span>Start game</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+              <a
+                href="#how-to-play"
+                className="btn-figma-dark"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('how-to-play')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                How to play
+              </a>
             </div>
-            <div className="score-chip">
-              <div className="sc-label">Best Moves</div>
-              <div className="sc-val">{scores.best_moves ?? '--'}</div>
-            </div>
-            <div className="score-chip">
-              <div className="sc-label">Games</div>
-              <div className="sc-val">{scores.games}</div>
-            </div>
-          </div>
 
-          <div className="btns-row">
-            <button className="btn btn-primary btn-lg" onClick={startGame}>
-              🎮 Start Game
-            </button>
-            <button className="btn btn-glass btn-sm" onClick={() => setModal('how')}>
-              ❓ How to Play
-            </button>
-          </div>
+            {/* Current Board */}
+            <div className="figma-current-board">
+              <div className="figma-board-info">
+                <div className="figma-section-label">CURRENT BOARD</div>
+                <div className="figma-board-dim">
+                  {diff === 'easy' ? '3 × 3' : diff === 'medium' ? '4 × 4' : '5 × 5'}
+                </div>
+              </div>
+              <div className={`figma-mini-board grid-${diff}`}>
+                {Array.from({ length: diff === 'easy' ? 9 : diff === 'medium' ? 16 : 25 }).map((_, i) => (
+                  <div key={i} className="figma-mini-tile" />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Stats Row */}
+          <section className="figma-stats-row">
+            <div className="figma-stat-card">
+              <div className="figma-section-label">BEST TIME</div>
+              <div className="figma-stat-val">
+                {scores.best_time ? fmt(scores.best_time) : '00:42'}
+              </div>
+              <div className="figma-stat-sub">Personal record</div>
+            </div>
+            <div className="figma-stat-card">
+              <div className="figma-section-label">BEST MOVES</div>
+              <div className="figma-stat-val">{scores.best_moves ?? 18}</div>
+              <div className="figma-stat-sub">Fewest moves</div>
+            </div>
+            <div className="figma-stat-card">
+              <div className="figma-section-label">GAMES</div>
+              <div className="figma-stat-val">{scores.games ?? 0}</div>
+              <div className="figma-stat-sub">Games started</div>
+            </div>
+          </section>
+
+          {/* How to Play Section */}
+          <section className="figma-htp-section" id="how-to-play">
+            <div className="figma-htp-header">
+              <div>
+                <div className="figma-section-label">HOW TO PLAY</div>
+                <h2 className="figma-htp-title">Three steps. One sharp eye.</h2>
+              </div>
+              <p className="figma-htp-tagline">
+                Designed to be simple to learn and satisfying to master.
+              </p>
+            </div>
+            <div className="figma-htp-divider" />
+            <div className="figma-htp-grid">
+              <div className="figma-htp-card">
+                <div className="figma-htp-num">01</div>
+                <h3 className="figma-htp-card-title">Frame the puzzle</h3>
+                <p className="figma-htp-card-desc">
+                  Use both hands to create a clear rectangular frame.
+                </p>
+              </div>
+              <div className="figma-htp-card">
+                <div className="figma-htp-num">02</div>
+                <h3 className="figma-htp-card-title">Capture your shot</h3>
+                <p className="figma-htp-card-desc">
+                  Hold steady while the camera detects the hand frame.
+                </p>
+              </div>
+              <div className="figma-htp-card">
+                <div className="figma-htp-num">03</div>
+                <h3 className="figma-htp-card-title">Solve the challenge</h3>
+                <p className="figma-htp-card-desc">
+                  Review the captured puzzle and enter your answer.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <footer className="figma-footer">
+            <span>Hand Puzzle Pro &bull; Camera Puzzle Game</span>
+            <span>Created with Precision</span>
+          </footer>
         </div>
 
         {/* ── CAPTURE SCREEN ── */}

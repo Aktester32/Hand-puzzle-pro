@@ -20,62 +20,481 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);
 
 /* ── Full-screen app ── */
 #app{width:100vw;height:100vh;position:relative;overflow:hidden;}
-#game{position:absolute;inset:0;background:var(--s1);}
+#game{position:absolute;inset:0;background:var(--s1);overflow:hidden;}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
   justify-content:center;opacity:0;pointer-events:none;
   transition:opacity 0.35s ease,transform 0.35s ease;transform:translateY(8px);padding:32px;}
 .screen.active{opacity:1;pointer-events:all;transform:translateY(0);}
 
-/* ── START SCREEN ── */
-#ss{background:radial-gradient(ellipse at 40% 20%,rgba(99,102,241,0.22) 0,transparent 60%),
-    radial-gradient(ellipse at 75% 80%,rgba(6,182,212,0.1) 0,transparent 55%),var(--s1);gap:22px;}
-.logo{width:88px;height:88px;border-radius:26px;
-  background:linear-gradient(135deg,var(--indigo),var(--violet));
-  display:flex;align-items:center;justify-content:center;font-size:2.6rem;
-  box-shadow:0 0 50px rgba(99,102,241,0.55),0 10px 40px rgba(0,0,0,0.5);
-  animation:floatL 3.5s ease-in-out infinite;}
-@keyframes floatL{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
-.app-name{font-size:2.4rem;font-weight:900;letter-spacing:-0.03em;text-align:center;
-  background:linear-gradient(135deg,#a5b4fc,var(--cyan));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.app-tag{font-size:0.85rem;color:var(--muted);text-align:center;max-width:400px;line-height:1.65;}
+/* ── START SCREEN (FIGMA LANDING PAGE) ── */
+#ss{
+  background:#080b11;
+  padding:0;
+  display:block;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scroll-behavior:smooth;
+  transform:none;
+  -webkit-overflow-scrolling:touch;
+}
+#ss.active{
+  opacity:1;
+  pointer-events:all;
+  display:block;
+}
 
-.diff-wrap{width:100%;max-width:480px;}
-.diff-lbl{font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;
-  letter-spacing:0.1em;margin-bottom:12px;text-align:center;}
-.diff-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.diff-btn{padding:18px 10px;border-radius:12px;border:1.5px solid var(--border);
-  background:rgba(255,255,255,0.04);cursor:pointer;text-align:center;transition:all 0.2s;}
-.diff-btn:hover{border-color:rgba(99,102,241,0.4);background:rgba(99,102,241,0.08);}
-.diff-btn.sel{border-color:var(--indigo);background:rgba(99,102,241,0.15);
-  box-shadow:0 0 0 1px var(--indigo) inset,0 0 24px rgba(99,102,241,0.25);}
-.diff-btn.sel .diff-name{color:#a5b4fc;}
-.diff-emoji{font-size:1.7rem;display:block;margin-bottom:5px;}
-.diff-name{font-size:0.82rem;font-weight:700;display:block;}
-.diff-size{font-size:0.68rem;color:var(--muted);display:block;margin-top:3px;}
+/* Figma Navbar */
+.figma-navbar{
+  position:sticky;
+  top:0;
+  left:0;
+  right:0;
+  z-index:50;
+  background:rgba(8,11,17,0.85);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.figma-nav-inner{
+  max-width:920px;
+  margin:0 auto;
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.figma-brand{
+  font-size:1.15rem;
+  font-weight:700;
+  color:#ffffff;
+  text-decoration:none;
+  letter-spacing:-0.01em;
+}
+.figma-nav-links{
+  display:flex;
+  align-items:center;
+  gap:28px;
+}
+.figma-nav-item{
+  color:#94a3b8;
+  font-size:0.9rem;
+  font-weight:500;
+  text-decoration:none;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:4px 0;
+  transition:color 0.2s ease;
+  font-family:inherit;
+}
+.figma-nav-item:hover,
+.figma-nav-item.active{
+  color:#ffffff;
+}
 
-.score-row{display:flex;gap:12px;width:100%;max-width:480px;}
-.score-chip{flex:1;padding:14px;border-radius:12px;background:rgba(255,255,255,0.04);
-  border:1px solid var(--border);text-align:center;}
-.sc-label{font-size:0.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
-.sc-val{font-size:1.05rem;font-weight:800;color:var(--cyan);margin-top:4px;font-variant-numeric:tabular-nums;}
+/* Settings Popover */
+.settings-popover-wrap{
+  position:relative;
+}
+.settings-dropdown{
+  position:absolute;
+  top:calc(100% + 14px);
+  right:0;
+  width:290px;
+  background:#111622;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;
+  padding:18px 20px;
+  box-shadow:0 16px 40px rgba(0,0,0,0.7);
+  z-index:100;
+  animation:popoverFadeIn 0.2s cubic-bezier(0.16,1,0.3,1);
+  text-align:left;
+  display:none;
+}
+.settings-dropdown.show{
+  display:block;
+}
+@keyframes popoverFadeIn{
+  from{opacity:0;transform:translateY(-6px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.settings-popover-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+.settings-popover-title{
+  font-size:0.95rem;
+  font-weight:700;
+  color:#ffffff;
+}
+.settings-popover-close{
+  background:none;
+  border:none;
+  color:#94a3b8;
+  font-size:1.25rem;
+  cursor:pointer;
+  line-height:1;
+  padding:2px 6px;
+  border-radius:6px;
+  transition:color 0.15s;
+}
+.settings-popover-close:hover{
+  color:#ffffff;
+}
+.settings-popover-desc{
+  font-size:0.82rem;
+  color:#94a3b8;
+  line-height:1.5;
+  margin:0;
+}
 
-.btns-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  border:none;border-radius:999px;font-family:inherit;font-weight:700;cursor:pointer;transition:all 0.2s;}
-.btn-lg{padding:16px 44px;font-size:1rem;letter-spacing:0.02em;}
-.btn-sm{padding:11px 22px;font-size:0.82rem;}
-.btn-xs{padding:8px 16px;font-size:0.76rem;}
-.btn-primary{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;
-  box-shadow:0 0 34px rgba(99,102,241,0.45);}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(99,102,241,0.65);}
-.btn-primary:active{transform:scale(0.97);}
-.btn-glass{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:var(--text);}
-.btn-glass:hover{background:rgba(255,255,255,0.12);}
-.btn-danger{background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.3);color:var(--rose);}
-.btn-success{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--emerald);}
-.btn-violet{background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:var(--violet);}
-.btn-violet:hover{background:rgba(139,92,246,0.25);}
+/* Hero Section */
+.figma-hero-section{
+  padding:96px 24px 38px;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  max-width:920px;
+  margin:0 auto;
+}
+.figma-hand-icon-card{
+  width:58px;
+  height:58px;
+  border-radius:18px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#ffffff;
+  box-shadow:0 10px 28px rgba(0,0,0,0.45);
+  margin-bottom:24px;
+}
+.figma-badge{
+  font-size:0.72rem;
+  font-weight:700;
+  letter-spacing:0.15em;
+  color:#8da4be;
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+.figma-hero-title{
+  font-size:clamp(2.5rem,5.5vw,3.9rem);
+  font-weight:800;
+  color:#ffffff;
+  letter-spacing:-0.035em;
+  line-height:1.08;
+  margin-bottom:18px;
+}
+.figma-hero-subtitle{
+  font-size:1.1rem;
+  color:#94a3b8;
+  max-width:540px;
+  line-height:1.6;
+  margin:0 auto 34px;
+}
+.figma-hero-btns{
+  display:flex;
+  gap:14px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+/* Buttons */
+.btn-figma-blue{
+  background:#0070f3;
+  color:#ffffff;
+  border:none;
+  border-radius:9999px;
+  padding:14px 28px;
+  font-size:0.94rem;
+  font-weight:600;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 0 26px rgba(0,112,243,0.45);
+  transition:all 0.2s cubic-bezier(0.16,1,0.3,1);
+  font-family:inherit;
+  text-decoration:none;
+}
+.btn-figma-blue:hover{
+  background:#007bf8;
+  transform:translateY(-2px);
+  box-shadow:0 0 36px rgba(0,112,243,0.65);
+}
+.btn-figma-blue:active{
+  transform:scale(0.98);
+}
+.btn-figma-dark{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.12);
+  color:#e2e8f0;
+  border-radius:9999px;
+  padding:14px 26px;
+  font-size:0.94rem;
+  font-weight:600;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  transition:all 0.2s ease;
+  font-family:inherit;
+}
+.btn-figma-dark:hover{
+  background:rgba(255,255,255,0.08);
+  border-color:rgba(255,255,255,0.25);
+  color:#ffffff;
+}
+
+/* Setup Card */
+.figma-setup-card{
+  max-width:860px;
+  margin:32px auto 0;
+  padding:34px 34px;
+  border-radius:20px;
+  background:rgba(13,17,26,0.65);
+  border:1px solid rgba(255,255,255,0.08);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  box-shadow:0 20px 60px rgba(0,0,0,0.45);
+}
+.figma-section-label{
+  font-size:0.72rem;
+  font-weight:700;
+  letter-spacing:0.12em;
+  color:#64748b;
+  text-transform:uppercase;
+  margin-bottom:16px;
+  text-align:left;
+}
+.figma-diff-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-bottom:24px;
+}
+.figma-diff-card{
+  border-radius:14px;
+  padding:24px 16px;
+  background:rgba(255,255,255,0.02);
+  border:1.5px solid rgba(255,255,255,0.07);
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  user-select:none;
+}
+.figma-diff-card:hover{
+  border-color:rgba(255,255,255,0.16);
+  background:rgba(255,255,255,0.04);
+}
+.figma-diff-card.sel,
+.figma-diff-card.active{
+  border-color:#0070f3;
+  background:rgba(0,112,243,0.08);
+  box-shadow:0 0 24px rgba(0,112,243,0.25),inset 0 0 0 1px rgba(0,112,243,0.4);
+}
+.figma-diff-icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#94a3b8;
+  height:28px;
+  margin-bottom:12px;
+  transition:color 0.2s ease;
+}
+.figma-diff-card.sel .figma-diff-icon,
+.figma-diff-card.active .figma-diff-icon{
+  color:#60a5fa;
+}
+.figma-diff-title{
+  font-size:1.05rem;
+  font-weight:700;
+  color:#ffffff;
+  margin-bottom:4px;
+}
+.figma-diff-sub{
+  font-size:0.8rem;
+  color:#64748b;
+}
+
+.figma-setup-btns{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+  margin-bottom:30px;
+}
+
+/* Current Board Card */
+.figma-current-board{
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px;
+  padding:30px 36px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.figma-board-dim{
+  font-size:2.2rem;
+  font-weight:800;
+  color:#ffffff;
+  margin-top:6px;
+  letter-spacing:-0.02em;
+}
+.figma-mini-board{
+  width:136px;
+  height:136px;
+  display:grid;
+  gap:5px;
+}
+.figma-mini-board.grid-easy{
+  grid-template-columns:repeat(3,1fr);
+}
+.figma-mini-board.grid-medium{
+  grid-template-columns:repeat(4,1fr);
+}
+.figma-mini-board.grid-hard{
+  grid-template-columns:repeat(5,1fr);
+}
+.figma-mini-tile{
+  background:#182232;
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:4px;
+  transition:all 0.3s ease;
+}
+
+/* Stats Row */
+.figma-stats-row{
+  max-width:860px;
+  margin:18px auto 0;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+.figma-stat-card{
+  border-radius:16px;
+  background:rgba(13,17,26,0.65);
+  border:1px solid rgba(255,255,255,0.08);
+  padding:24px 26px;
+  text-align:left;
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+}
+.figma-stat-val{
+  font-size:2.1rem;
+  font-weight:800;
+  color:#ffffff;
+  margin:8px 0 6px;
+  letter-spacing:-0.02em;
+  font-variant-numeric:tabular-nums;
+}
+.figma-stat-sub{
+  font-size:0.78rem;
+  color:#64748b;
+}
+
+/* How to Play Section */
+.figma-htp-section{
+  max-width:860px;
+  margin:64px auto 0;
+  text-align:left;
+}
+.figma-htp-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:22px;
+  gap:20px;
+}
+.figma-htp-title{
+  font-size:2.1rem;
+  font-weight:800;
+  color:#ffffff;
+  margin-top:6px;
+  letter-spacing:-0.02em;
+}
+.figma-htp-tagline{
+  font-size:0.92rem;
+  color:#64748b;
+  max-width:290px;
+  text-align:right;
+  line-height:1.5;
+  margin:0;
+}
+.figma-htp-divider{
+  height:1px;
+  background:rgba(255,255,255,0.07);
+  margin-bottom:26px;
+}
+.figma-htp-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+.figma-htp-card{
+  border-radius:16px;
+  background:rgba(13,17,26,0.65);
+  border:1px solid rgba(255,255,255,0.08);
+  padding:26px 24px;
+  min-height:160px;
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+}
+.figma-htp-num{
+  font-size:0.78rem;
+  font-weight:700;
+  color:#64748b;
+}
+.figma-htp-card-title{
+  font-size:1.05rem;
+  font-weight:700;
+  color:#ffffff;
+  margin:16px 0 8px;
+}
+.figma-htp-card-desc{
+  font-size:0.84rem;
+  color:#64748b;
+  line-height:1.55;
+  margin:0;
+}
+
+.figma-footer{
+  max-width:860px;
+  margin:60px auto 0;
+  padding-top:24px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  color:#64748b;
+  font-size:0.82rem;
+}
+
+@media (max-width: 768px){
+  .figma-htp-header{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .figma-htp-tagline{
+    text-align:left;
+  }
+  .figma-diff-grid,
+  .figma-stats-row,
+  .figma-htp-grid{
+    grid-template-columns:1fr;
+  }
+  .figma-current-board{
+    flex-direction:column;
+    gap:20px;
+    text-align:center;
+  }
+}
 
 /* ── CAPTURE SCREEN ── */
 #cs{padding:0;background:transparent;}
@@ -244,43 +663,195 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);
 </div>
 <div id="flash"></div>
 
-<!-- ── START SCREEN ── -->
+<!-- ── START SCREEN (FIGMA LANDING PAGE) ── -->
 <div class="screen active" id="ss">
-  <div class="logo">🤲</div>
-  <div class="app-name">Hand<br>Puzzle Pro</div>
-  <p class="app-tag">Use the <strong>Director's Frame</strong> gesture (index & thumb) to frame your shot, then open your hands to capture and solve!</p>
+  <!-- Top Navbar -->
+  <header class="figma-navbar">
+    <div class="figma-nav-inner">
+      <span class="figma-brand">Hand Puzzle Pro</span>
+      <nav class="figma-nav-links">
+        <a href="#home" class="figma-nav-item active" onclick="event.preventDefault();$('ss').scrollTo({top:0,behavior:'smooth'})">Home</a>
+        <a href="#how-to-play" class="figma-nav-item" onclick="event.preventDefault();$('how-to-play').scrollIntoView({behavior:'smooth'})">How to Play</a>
+        <div class="settings-popover-wrap">
+          <button type="button" class="figma-nav-item" onclick="toggleSettings()">Settings</button>
+          <div class="settings-dropdown" id="settings-popover">
+            <div class="settings-popover-head">
+              <span class="settings-popover-title">Settings</span>
+              <button type="button" class="settings-popover-close" onclick="toggleSettings(false)">&times;</button>
+            </div>
+            <p class="settings-popover-desc">Sound and difficulty controls become available when a game starts.</p>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
 
-  <div class="diff-wrap">
-    <div class="diff-lbl">Select Difficulty</div>
-    <div class="diff-grid">
-      <div class="diff-btn sel" data-diff="easy" onclick="selectDiff(this,'easy')">
-        <span class="diff-emoji">🌱</span>
-        <span class="diff-name">Easy</span>
-        <span class="diff-size">3 × 3</span>
+  <!-- Hero Section -->
+  <section class="figma-hero-section" id="home">
+    <div class="figma-hand-icon-card">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 11V6a2 2 0 0 0-4 0v4"/>
+        <path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+        <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+        <path d="M18 8a2 2 0 0 1 4 4c0 4.418-3.582 8-8 8h-2c-3.14 0-5.836-1.808-7.14-4.44L3.38 12.62a1.5 1.5 0 0 1 2.38-1.84L7.5 12.5"/>
+      </svg>
+    </div>
+    <div class="figma-badge">CAMERA PUZZLE GAME</div>
+    <h1 class="figma-hero-title">Hand Puzzle Pro</h1>
+    <p class="figma-hero-subtitle">Frame your shot with your hands. Capture, solve, and sharpen your visual thinking.</p>
+    <div class="figma-hero-btns">
+      <button class="btn-figma-blue" onclick="startGame()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span>Start playing</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+      <a href="#how-to-play" class="btn-figma-dark" onclick="event.preventDefault();$('how-to-play').scrollIntoView({behavior:'smooth'})">How it works</a>
+    </div>
+  </section>
+
+  <!-- Setup Card: Select Difficulty & Current Board -->
+  <section class="figma-setup-card" id="difficulty-section">
+    <div class="figma-section-label">SELECT DIFFICULTY</div>
+    <div class="figma-diff-grid">
+      <!-- Easy -->
+      <div class="figma-diff-card diff-btn sel" data-diff="easy" onclick="selectDiff(this,'easy')">
+        <div class="figma-diff-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="3" width="4.5" height="4.5" rx="1"/>
+            <rect x="9.75" y="3" width="4.5" height="4.5" rx="1"/>
+            <rect x="16.5" y="3" width="4.5" height="4.5" rx="1"/>
+            <rect x="3" y="9.75" width="4.5" height="4.5" rx="1"/>
+            <rect x="9.75" y="9.75" width="4.5" height="4.5" rx="1"/>
+            <rect x="16.5" y="9.75" width="4.5" height="4.5" rx="1"/>
+            <rect x="3" y="16.5" width="4.5" height="4.5" rx="1"/>
+            <rect x="9.75" y="16.5" width="4.5" height="4.5" rx="1"/>
+            <rect x="16.5" y="16.5" width="4.5" height="4.5" rx="1"/>
+          </svg>
+        </div>
+        <div class="figma-diff-title">Easy</div>
+        <div class="figma-diff-sub">3 × 3 grid</div>
       </div>
-      <div class="diff-btn" data-diff="medium" onclick="selectDiff(this,'medium')">
-        <span class="diff-emoji">🔥</span>
-        <span class="diff-name">Medium</span>
-        <span class="diff-size">4 × 4</span>
+
+      <!-- Medium -->
+      <div class="figma-diff-card diff-btn" data-diff="medium" onclick="selectDiff(this,'medium')">
+        <div class="figma-diff-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <g transform="rotate(45 12 12)">
+              <rect x="6" y="6" width="3.5" height="3.5" rx="0.8"/>
+              <rect x="11.5" y="6" width="3.5" height="3.5" rx="0.8"/>
+              <rect x="6" y="11.5" width="3.5" height="3.5" rx="0.8"/>
+              <rect x="11.5" y="11.5" width="3.5" height="3.5" rx="0.8"/>
+            </g>
+          </svg>
+        </div>
+        <div class="figma-diff-title">Medium</div>
+        <div class="figma-diff-sub">4 × 4 grid</div>
       </div>
-      <div class="diff-btn" data-diff="hard" onclick="selectDiff(this,'hard')">
-        <span class="diff-emoji">💀</span>
-        <span class="diff-name">Hard</span>
-        <span class="diff-size">5 × 5</span>
+
+      <!-- Hard -->
+      <div class="figma-diff-card diff-btn" data-diff="hard" onclick="selectDiff(this,'hard')">
+        <div class="figma-diff-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="4" y="4" width="16" height="16" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+            <circle cx="8" cy="8" r="1.2"/>
+            <circle cx="12" cy="8" r="1.2"/>
+            <circle cx="16" cy="8" r="1.2"/>
+            <circle cx="8" cy="12" r="1.2"/>
+            <circle cx="12" cy="12" r="1.2"/>
+            <circle cx="16" cy="12" r="1.2"/>
+            <circle cx="8" cy="16" r="1.2"/>
+            <circle cx="12" cy="16" r="1.2"/>
+            <circle cx="16" cy="16" r="1.2"/>
+          </svg>
+        </div>
+        <div class="figma-diff-title">Hard</div>
+        <div class="figma-diff-sub">5 × 5 grid</div>
       </div>
     </div>
-  </div>
 
-  <div class="score-row" id="score-row">
-    <div class="score-chip"><div class="sc-label">Best Time</div><div class="sc-val" id="sc-time">--:--</div></div>
-    <div class="score-chip"><div class="sc-label">Best Moves</div><div class="sc-val" id="sc-moves">--</div></div>
-    <div class="score-chip"><div class="sc-label">Games</div><div class="sc-val" id="sc-games">0</div></div>
-  </div>
+    <div class="figma-setup-btns">
+      <button class="btn-figma-blue" onclick="startGame()">
+        <span>Start game</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+      <a href="#how-to-play" class="btn-figma-dark" onclick="event.preventDefault();$('how-to-play').scrollIntoView({behavior:'smooth'})">How to play</a>
+    </div>
 
-  <div class="btns-row">
-    <button class="btn btn-primary btn-lg" onclick="startGame()">🎮 Start Game</button>
-    <button class="btn btn-glass btn-sm" onclick="showModal('how-modal')">❓ How to Play</button>
-  </div>
+    <!-- Current Board -->
+    <div class="figma-current-board">
+      <div class="figma-board-info">
+        <div class="figma-section-label">CURRENT BOARD</div>
+        <div class="figma-board-dim" id="figma-board-dim">3 × 3</div>
+      </div>
+      <div class="figma-mini-board grid-easy" id="figma-mini-board">
+        <div class="figma-mini-tile"></div><div class="figma-mini-tile"></div><div class="figma-mini-tile"></div>
+        <div class="figma-mini-tile"></div><div class="figma-mini-tile"></div><div class="figma-mini-tile"></div>
+        <div class="figma-mini-tile"></div><div class="figma-mini-tile"></div><div class="figma-mini-tile"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Row -->
+  <section class="figma-stats-row">
+    <div class="figma-stat-card">
+      <div class="figma-section-label">BEST TIME</div>
+      <div class="figma-stat-val" id="sc-time">00:42</div>
+      <div class="figma-stat-sub">Personal record</div>
+    </div>
+    <div class="figma-stat-card">
+      <div class="figma-section-label">BEST MOVES</div>
+      <div class="figma-stat-val" id="sc-moves">18</div>
+      <div class="figma-stat-sub">Fewest moves</div>
+    </div>
+    <div class="figma-stat-card">
+      <div class="figma-section-label">GAMES</div>
+      <div class="figma-stat-val" id="sc-games">0</div>
+      <div class="figma-stat-sub">Games started</div>
+    </div>
+  </section>
+
+  <!-- How to Play Section -->
+  <section class="figma-htp-section" id="how-to-play">
+    <div class="figma-htp-header">
+      <div>
+        <div class="figma-section-label">HOW TO PLAY</div>
+        <h2 class="figma-htp-title">Three steps. One sharp eye.</h2>
+      </div>
+      <p class="figma-htp-tagline">Designed to be simple to learn and satisfying to master.</p>
+    </div>
+    <div class="figma-htp-divider"></div>
+    <div class="figma-htp-grid">
+      <div class="figma-htp-card">
+        <div class="figma-htp-num">01</div>
+        <h3 class="figma-htp-card-title">Frame the puzzle</h3>
+        <p class="figma-htp-card-desc">Use both hands to create a clear rectangular frame.</p>
+      </div>
+      <div class="figma-htp-card">
+        <div class="figma-htp-num">02</div>
+        <h3 class="figma-htp-card-title">Capture your shot</h3>
+        <p class="figma-htp-card-desc">Hold steady while the camera detects the hand frame.</p>
+      </div>
+      <div class="figma-htp-card">
+        <div class="figma-htp-num">03</div>
+        <h3 class="figma-htp-card-title">Solve the challenge</h3>
+        <p class="figma-htp-card-desc">Review the captured puzzle and enter your answer.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="figma-footer">
+    <span>Hand Puzzle Pro &bull; Camera Puzzle Game</span>
+    <span>Created with Precision</span>
+  </footer>
 </div>
 
 <!-- ── CAPTURE SCREEN ── -->
@@ -444,11 +1015,28 @@ function saveScore(d,time,moves){
   if(!s.best_moves||moves<s.best_moves) s.best_moves=moves;
   localStorage.setItem('hp_'+d,JSON.stringify(s)); return s;
 }
+function toggleSettings(show){
+  const el = $('settings-popover');
+  if(!el) return;
+  if(show !== undefined) el.classList.toggle('show', show);
+  else el.classList.toggle('show');
+}
+function updateMiniBoard(d){
+  const dim = $('figma-board-dim');
+  const board = $('figma-mini-board');
+  if(dim) dim.textContent = d==='easy' ? '3 × 3' : d==='medium' ? '4 × 4' : '5 × 5';
+  if(board){
+    board.className = 'figma-mini-board grid-' + d;
+    const count = d==='easy' ? 9 : d==='medium' ? 16 : 25;
+    board.innerHTML = Array.from({length:count}, ()=>'<div class="figma-mini-tile"></div>').join('');
+  }
+}
 function refreshScoreRow(){
   const s=getScores(diff);
-  scTime.textContent=s.best_time?fmt(s.best_time):'--:--';
-  scMoves.textContent=s.best_moves?s.best_moves:'--';
-  scGames.textContent=s.games||0;
+  if(scTime) scTime.textContent=s.best_time?fmt(s.best_time):'00:42';
+  if(scMoves) scMoves.textContent=s.best_moves!=null?s.best_moves:'18';
+  if(scGames) scGames.textContent=s.games||0;
+  updateMiniBoard(diff);
 }
 
 // UI
