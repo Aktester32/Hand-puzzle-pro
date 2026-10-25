@@ -138,20 +138,6 @@ Allow webcam permission to test the camera and gesture-based features.
 
 ---
 
-## 📸 Screenshots and Demonstration
-
-Add real screenshots or a short GIF of your working application to help visitors understand the project.
-
-Suggested demonstrations:
-
-- Homepage and difficulty selection
-- Hand tracking through the webcam
-- Hand-framing and image capture
-- Pinch-to-grab puzzle interaction
-- Completed puzzle and game statistics
-
-Example screenshot paths:
-
 ## 🔬 Future Scope
 
 The project can be extended to explore more advanced AR/VR capabilities:
