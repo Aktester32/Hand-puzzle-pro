@@ -152,18 +152,6 @@ Suggested demonstrations:
 
 Example screenshot paths:
 
-```text
-screenshots/
-├── homepage.png
-├── hand-tracking.png
-├── image-capture.png
-└── puzzle-gameplay.png
-```
-
-Replace these example names with your actual screenshot files.
-
----
-
 ## 🔬 Future Scope
 
 The project can be extended to explore more advanced AR/VR capabilities:
