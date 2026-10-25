@@ -103,4 +103,121 @@ VR creates an immersive, computer-generated environment, typically experienced t
 
 - [Node.js](https://nodejs.org/)
 - npm
-- [Git](https://
+- [Git](https://git-scm.com/)
+- A modern browser with webcam support
+
+### 1. Clone the Repository
+
+```bash
+git clone YOUR_GITHUB_REPOSITORY_URL
+```
+
+### 2. Navigate to the Project
+
+```bash
+cd YOUR_PROJECT_FOLDER
+```
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4. Run the Development Server
+
+```bash
+npm run dev
+```
+
+### 5. Open the Application
+
+Navigate to [http://localhost:3000](http://localhost:3000).
+
+Allow webcam permission to test the camera and gesture-based features.
+
+---
+
+## 📸 Screenshots and Demonstration
+
+Add real screenshots or a short GIF of your working application to help visitors understand the project.
+
+Suggested demonstrations:
+
+- Homepage and difficulty selection
+- Hand tracking through the webcam
+- Hand-framing and image capture
+- Pinch-to-grab puzzle interaction
+- Completed puzzle and game statistics
+
+Example screenshot paths:
+
+```text
+screenshots/
+├── homepage.png
+├── hand-tracking.png
+├── image-capture.png
+└── puzzle-gameplay.png
+```
+
+Replace these example names with your actual screenshot files.
+
+---
+
+## 🔬 Future Scope
+
+The project can be extended to explore more advanced AR/VR capabilities:
+
+- **Live AR Puzzle Overlay:** Render puzzle elements over a live camera feed.
+- **Spatial AR Placement:** Position digital puzzles within a real-world environment.
+- **3D Puzzle Interaction:** Introduce depth and three-dimensional puzzle objects.
+- **WebXR Integration:** Explore browser-based AR and VR experiences on compatible devices.
+- **VR Headset Support:** Build an immersive puzzle environment for supported headsets.
+- **Advanced Hand Interaction:** Improve gesture recognition, feedback, and interaction accuracy.
+- **Multiplayer Puzzle Challenges:** Enable collaborative puzzle-solving experiences.
+
+These enhancements could expand HandPuzzle Pro from a gesture-controlled browser game into a more comprehensive AR/VR learning project.
+
+---
+
+## 🎓 Academic Relevance
+
+**Subject Area:** Augmented Reality and Virtual Reality (AR/VR)
+
+**Related Domains:**
+- Computer Vision
+- Human-Computer Interaction (HCI)
+- Gesture Recognition
+- AI-Based Interaction
+- Interactive Gaming
+- Web-Based Immersive Technologies
+
+This project demonstrates the use of camera-based hand tracking and natural gesture interaction in a digital application. It also provides a foundation for exploring spatial augmented reality, immersive interfaces, and future VR integration.
+
+---
+
+## 🔐 Camera Permissions and Privacy
+
+- Camera access requires user permission.
+- Camera functionality generally requires HTTPS in deployed environments, except for trusted local development origins.
+- Review the application's implementation to determine how captured images and camera data are processed or stored.
+
+---
+
+## 👨‍💻 Project Information
+
+**Project Name:** HandPuzzle Pro
+
+**Category:** AR/VR Concepts, Computer Vision & Gesture-Based Gaming
+
+**Live Application:** [hand-puzzle-pro.vercel.app](https://hand-puzzle-pro.vercel.app/)
+
+**Built with:** Next.js, React, MediaPipe, and CSS
+
+---
+
+## ⭐ Conclusion
+
+HandPuzzle Pro explores how computer vision and gesture recognition can make digital interactions more natural and engaging. By combining camera-based image capture with hand-controlled puzzle gameplay, the project demonstrates practical concepts related to AR/VR interaction and creates a foundation for future immersive experiences.
+
+**HandPuzzle Pro — Bringing natural interaction into digital play.**
