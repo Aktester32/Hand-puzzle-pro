@@ -1,77 +1,32 @@
-# 🧩 HandPuzzle Pro – AI-Powered AR Camera Puzzle Game
+# 🧩 HandPuzzle Pro
 
-HandPuzzle Pro is an interactive browser-based Augmented Reality (AR) puzzle game built with Next.js and MediaPipe AI for real-time hand tracking. Users frame their shot using hand gestures, capture their photo, and solve dynamic sliding puzzles using pinch-to-drag gestures.
+### AI-Powered Camera Puzzle Game
 
----
+**Frame with your hands. Capture your moment. Solve the puzzle.**
 
-## 🚀 One-Click & Zero-Config Deployment Options
+HandPuzzle Pro is an interactive, browser-based camera puzzle game built with Next.js and MediaPipe hand tracking. It combines computer vision, gesture-based interaction, and sliding-puzzle gameplay to create a unique gaming experience.
 
-### 1. Deploy to Vercel (Recommended)
-The project includes a ready-to-deploy [`vercel.json`](./vercel.json).
-1. Push this repository to **GitHub / GitLab / Bitbucket**.
-2. Go to [vercel.com/new](https://vercel.com/new).
-3. Import the repository.
-4. Click **Deploy** — Vercel detects Next.js automatically and builds the production bundle with zero configuration.
+Using both hands, players can frame a shot in the air, capture a photo, and transform it into a sliding puzzle. They can then use intuitive pinch gestures to grab and move tiles while tracking their time and moves.
 
----
+🌐 **Live Demo:** [https://hand-puzzle-pro.vercel.app/](https://hand-puzzle-pro.vercel.app/)
 
-### 2. Deploy to Netlify
-The project includes [`netlify.toml`](./netlify.toml) configured with the Next.js runtime plugin.
-1. Push this repository to GitHub.
-2. Go to [app.netlify.com](https://app.netlify.com).
-3. Click **Add new site > Import an existing project**.
-4. Netlify will detect `npm run build` and publish `.next` automatically.
-5. Click **Deploy site**.
+## ✨ Key Features
 
----
+- 🖐️ **Real-Time Hand Tracking** — Detect hand movements through your webcam.
+- 📸 **Gesture-Based Capture** — Frame a shot using both hands and open your fingers to capture it.
+- 🧩 **Photo-Based Puzzles** — Turn captured images into sliding-puzzle challenges.
+- 🤏 **Pinch-to-Grab Controls** — Pick up, move, and release puzzle tiles using hand gestures.
+- 🎯 **Three Difficulty Levels** — Easy (3×3), Medium (4×4), and Hard (5×5).
+- ⏱️ **Timer and Move Counter** — Track your progress as you solve the puzzle.
+- 📊 **Game Statistics** — View available records and gameplay results.
+- 🎨 **Modern Interface** — A polished dark-themed design for an immersive experience.
 
-### 3. Deploy with Docker (Render, Railway, Fly.io, AWS, GCP, Azure)
-The project includes a production-grade multi-stage [`Dockerfile`](./Dockerfile) and [`.dockerignore`](./.dockerignore).
+## 🎮 How It Works
 
-**Build and run locally with Docker:**
-```bash
-docker build -t handpuzzle-pro .
-docker run -p 3000:3000 handpuzzle-pro
-```
-Visit `http://localhost:3000`.
+1. **Frame:** Use the index fingers and thumbs of both hands to create a rectangle.
+2. **Capture:** Open your fingers to take the photo.
+3. **Solve:** Pinch to grab puzzle tiles, move them, and release to place them.
 
-**Deploy to Render / Railway / Fly.io:**
-- Connect your Git repo and select **Docker** as the environment.
-- The platform will automatically build from `Dockerfile` and expose port `3000`.
+Ready to test your visual thinking?
 
----
-
-### 4. Self-Hosted (VPS / Node.js Server)
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Build for production
-npm run build
-
-# 3. Start production server on port 3000
-npm start
-```
-
-For persistent background execution with PM2:
-```bash
-npm install -g pm2
-pm2 start npm --name "handpuzzle-pro" -- start
-```
-
----
-
-## 🛠 Local Development
-```bash
-npm install
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) with your browser.
-
----
-
-## 📷 Features & Technology Stack
-- **Framework**: Next.js 16 + React 19
-- **Hand Tracking**: MediaPipe Hands AI (Director's frame gesture capture & pinch-to-grab interaction)
-- **Styling**: Vanilla CSS design system matching Figma mockups
-- **Hosting Support**: Vercel, Netlify, Docker, Node.js standalone
+👉 **[Play HandPuzzle Pro](https://hand-puzzle-pro.vercel.app/)**
