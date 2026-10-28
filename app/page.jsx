@@ -56,6 +56,18 @@ export default function HandPuzzleApp() {
   const gridWrapRef = useRef(null);
   const confettiCvRef = useRef(null);
 
+  // Fast direct DOM Refs for 60 FPS loop
+  const capInstrRef = useRef(null);
+  const capSubRef = useRef(null);
+  const hdLRef = useRef(null);
+  const hdRRef = useRef(null);
+  const ggFrameRef = useRef(null);
+  const ggOpenRef = useRef(null);
+  const arVfRef = useRef(null);
+  const gbadgeRef = useRef(null);
+  const trackCvRef = useRef(null);
+  const gameRectRef = useRef(null);
+
   // Logic Refs
   const handsModelRef = useRef(null);
   const camStreamRef = useRef(null);
@@ -88,6 +100,17 @@ export default function HandPuzzleApp() {
     diffRef.current = diff;
     loadScores(diff);
   }, [diff]);
+
+  useEffect(() => {
+    const updateRect = () => {
+      if (gameRef.current) {
+        gameRectRef.current = gameRef.current.getBoundingClientRect();
+      }
+    };
+    updateRect();
+    window.addEventListener('resize', updateRect);
+    return () => window.removeEventListener('resize', updateRect);
+  }, []);
 
   useEffect(() => {
     pausedRef.current = isPaused;
@@ -219,12 +242,14 @@ export default function HandPuzzleApp() {
     if (!cv || !vid) return;
     const w = vid.videoWidth || vid.clientWidth || 640;
     const h = vid.videoHeight || vid.clientHeight || 480;
-    cv.width = w;
-    cv.height = h;
+    if (cv.width !== w || cv.height !== h) {
+      cv.width = w;
+      cv.height = h;
+    }
   };
 
   const drawSkel = (ctx, lm, W, H) => {
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
     ctx.lineWidth = 2;
     HCONN.forEach(([a, b]) => {
       ctx.beginPath();
@@ -234,15 +259,17 @@ export default function HandPuzzleApp() {
     });
     lm.forEach((l, i) => {
       const isKey = i === 4 || i === 8;
-      ctx.beginPath();
-      ctx.arc((1 - l.x) * W, l.y * H, isKey ? 7 : 3, 0, Math.PI * 2);
-      ctx.fillStyle = i === 4 ? '#f59e0b' : i === 8 ? '#a5b4fc' : 'rgba(255,255,255,0.7)';
+      const px = (1 - l.x) * W, py = l.y * H;
       if (isKey) {
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = i === 4 ? '#f59e0b' : '#6366f1';
+        ctx.beginPath();
+        ctx.arc(px, py, 11, 0, Math.PI * 2);
+        ctx.fillStyle = i === 4 ? 'rgba(245,158,11,0.28)' : 'rgba(99,102,241,0.32)';
+        ctx.fill();
       }
+      ctx.beginPath();
+      ctx.arc(px, py, isKey ? 6 : 3, 0, Math.PI * 2);
+      ctx.fillStyle = i === 4 ? '#f59e0b' : i === 8 ? '#a5b4fc' : 'rgba(255,255,255,0.75)';
       ctx.fill();
-      ctx.shadowBlur = 0;
     });
   };
 
@@ -275,8 +302,10 @@ export default function HandPuzzleApp() {
 
     const hasL = lms.length >= 1;
     const hasR = lms.length >= 2;
-    setHandL(hasL);
-    setHandR(hasR);
+
+    // Direct DOM updates: 0 React re-renders during 60 FPS tracking
+    if (hdLRef.current) hdLRef.current.classList.toggle('active', hasL);
+    if (hdRRef.current) hdRRef.current.classList.toggle('active', hasR);
 
     if (hasR) {
       const f1 = getFingers(lms[0]);
@@ -305,21 +334,27 @@ export default function HandPuzzleApp() {
         captureReadyRef.current = true;
         frameLastSeenRef.current = Date.now();
 
-        setCapInstr('Good! Now size your frame.');
-        setCapSub('Move hands apart to make it bigger.');
-        setGgFrame('active');
-        setGgOpen('');
+        if (capInstrRef.current && capInstrRef.current.textContent !== 'Good! Now size your frame.') {
+          capInstrRef.current.textContent = 'Good! Now size your frame.';
+        }
+        if (capSubRef.current && capSubRef.current.textContent !== 'Move hands apart to make it bigger.') {
+          capSubRef.current.textContent = 'Move hands apart to make it bigger.';
+        }
+        if (ggFrameRef.current) ggFrameRef.current.className = 'cap-step-pill active';
+        if (ggOpenRef.current) ggOpenRef.current.className = 'cap-step-pill';
+        if (arVfRef.current) arVfRef.current.classList.add('active');
       }
 
       if (captureReadyRef.current && Date.now() - frameLastSeenRef.current > 1500) {
         captureReadyRef.current = false;
         frameRectRef.current = null;
+        if (arVfRef.current) arVfRef.current.classList.remove('active');
       }
 
       if (isOpen1 && isOpen2) {
         if (captureReadyRef.current) {
-          setGgFrame('done');
-          setGgOpen('done');
+          if (ggFrameRef.current) ggFrameRef.current.className = 'cap-step-pill done';
+          if (ggOpenRef.current) ggOpenRef.current.className = 'cap-step-pill done';
           doCapture(frameRectRef.current);
           captureReadyRef.current = false;
           return;
@@ -329,36 +364,69 @@ export default function HandPuzzleApp() {
         }
       }
     } else {
-      setCapInstr('Show both hands');
-      setCapSub('Frame shot OR open both hands for full screen');
-      setGgFrame('');
-      setGgOpen('');
+      if (capInstrRef.current && capInstrRef.current.textContent !== 'Show both hands') {
+        capInstrRef.current.textContent = 'Show both hands';
+      }
+      if (capSubRef.current && capSubRef.current.textContent !== 'Frame shot with index & thumb, or open hands for full screen') {
+        capSubRef.current.textContent = 'Frame shot with index & thumb, or open hands for full screen';
+      }
+      if (ggFrameRef.current) ggFrameRef.current.className = 'cap-step-pill';
+      if (ggOpenRef.current) ggOpenRef.current.className = 'cap-step-pill';
+      if (arVfRef.current) arVfRef.current.classList.remove('active');
     }
 
     if (captureReadyRef.current && frameRectRef.current) {
       const r = frameRectRef.current;
-      ctx.strokeStyle = 'rgba(16,185,129,0.8)';
-      ctx.lineWidth = 4;
-      ctx.setLineDash([10, 10]);
-      ctx.strokeRect(r.x * W, r.y * H, r.w * W, r.h * H);
+      const rx = r.x * W, ry = r.y * H, rw = r.w * W, rh = r.h * H;
+
+      // AR frame translucent fill
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.12)';
+      ctx.fillRect(rx, ry, rw, rh);
+
+      // AR dashed frame border
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.85)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 8]);
+      ctx.strokeRect(rx, ry, rw, rh);
       ctx.setLineDash([]);
 
-      const cx = r.x * W, cy = r.y * H, cw = r.w * W, ch = r.h * H, L = 30;
+      // AR corner brackets (L-brackets)
+      const L = Math.min(30, Math.min(rw, rh) * 0.25);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#10b981';
       ctx.beginPath();
-      ctx.moveTo(cx, cy + L); ctx.lineTo(cx, cy); ctx.lineTo(cx + L, cy);
-      ctx.moveTo(cx + cw - L, cy); ctx.lineTo(cx + cw, cy); ctx.lineTo(cx + cw, cy + L);
-      ctx.moveTo(cx, cy + ch - L); ctx.lineTo(cx, cy + ch); ctx.lineTo(cx + L, cy + ch);
-      ctx.moveTo(cx + cw - L, cy + ch); ctx.lineTo(cx + cw, cy + ch); ctx.lineTo(cx + cw, cy + ch - L);
+      ctx.moveTo(rx, ry + L); ctx.lineTo(rx, ry); ctx.lineTo(rx + L, ry);
+      ctx.moveTo(rx + rw - L, ry); ctx.lineTo(rx + rw, ry); ctx.lineTo(rx + rw, ry + L);
+      ctx.moveTo(rx, ry + rh - L); ctx.lineTo(rx, ry + rh); ctx.lineTo(rx + L, ry + rh);
+      ctx.moveTo(rx + rw - L, ry + rh); ctx.lineTo(rx + rw, ry + rh); ctx.lineTo(rx + rw, ry + rh - L);
       ctx.stroke();
 
-      ctx.fillStyle = 'rgba(16,185,129,0.15)';
-      ctx.fillRect(r.x * W, r.y * H, r.w * W, r.h * H);
+      // AR Tag badge above frame
+      const bw = 150, bh = 24;
+      const bx = rx + (rw - bw) / 2, by = Math.max(10, ry - 30);
+      ctx.fillStyle = 'rgba(8, 11, 17, 0.88)';
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 12);
+      else ctx.rect(bx, by, bw, bh);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#10b981';
+      ctx.font = '700 11px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('AR 3×3 FRAME • READY', bx + bw / 2, by + bh / 2);
 
       if (!(lms.length === 2 && getFingers(lms[0])[0] && !getFingers(lms[0])[2])) {
-        setCapInstr('Open hands to SNAP!');
-        setCapSub('Spread all 10 fingers open to take the picture');
-        setGgFrame('done');
-        setGgOpen('active');
+        if (capInstrRef.current && capInstrRef.current.textContent !== 'Open hands to SNAP!') {
+          capInstrRef.current.textContent = 'Open hands to SNAP!';
+        }
+        if (capSubRef.current && capSubRef.current.textContent !== 'Spread all 10 fingers open to take the picture') {
+          capSubRef.current.textContent = 'Spread all 10 fingers open to take the picture';
+        }
+        if (ggFrameRef.current) ggFrameRef.current.className = 'cap-step-pill done';
+        if (ggOpenRef.current) ggOpenRef.current.className = 'cap-step-pill active';
       }
     }
   };
@@ -381,7 +449,7 @@ export default function HandPuzzleApp() {
     }
 
     drawSkel(ctx, lm, cv.width, cv.height);
-    const pr = game.getBoundingClientRect();
+    const pr = gameRectRef.current || game.getBoundingClientRect();
     const nx = 1 - lm[8].x, ny = lm[8].y;
     const sx = pr.left + nx * pr.width, sy = pr.top + ny * pr.height;
     const tx2 = pr.left + (1 - lm[4].x) * pr.width, ty2 = pr.top + lm[4].y * pr.height;
@@ -393,10 +461,14 @@ export default function HandPuzzleApp() {
     cur.style.top = sy + 'px';
     cur.classList.toggle('pinch', isPinch);
 
+    const badgeEl = gbadgeRef.current;
+    const curDiff = diffRef.current;
+
     if (isPinch) {
       pinchFramesRef.current++;
-      setBadgeClass('p');
-      if (pinchFramesRef.current === CFG[diffRef.current].pinch && !draggingRef.current) {
+      if (badgeEl && !badgeEl.classList.contains('p')) badgeEl.className = 'p';
+
+      if (pinchFramesRef.current === CFG[curDiff].pinch && !draggingRef.current) {
         const tile = tileAt(sx, sy);
         if (tile && !tile.locked) {
           sfxGrab();
@@ -405,16 +477,22 @@ export default function HandPuzzleApp() {
       } else if (draggingRef.current) {
         moveHDrag(sx, sy);
       }
-      setBadgeText(
-        draggingRef.current
+
+      if (badgeEl) {
+        const text = draggingRef.current
           ? '🤏 Release to drop'
-          : `🤏 ${pinchFramesRef.current}/${CFG[diffRef.current].pinch} hold…`
-      );
+          : `🤏 ${pinchFramesRef.current}/${CFG[curDiff].pinch} hold…`;
+        if (badgeEl.textContent !== text) badgeEl.textContent = text;
+      }
     } else {
       if (draggingRef.current) endHDrag();
       pinchFramesRef.current = 0;
-      setBadgeClass('');
-      setBadgeText('🤏 Pinch to grab');
+      if (badgeEl) {
+        if (badgeEl.className !== '') badgeEl.className = '';
+        if (badgeEl.textContent !== '🤏 Pinch to grab a tile') {
+          badgeEl.textContent = '🤏 Pinch to grab a tile';
+        }
+      }
     }
   };
 
@@ -434,7 +512,14 @@ export default function HandPuzzleApp() {
       if (vid && vid.readyState >= 2 && handsModelRef.current) {
         isSendingRef.current = true;
         try {
-          await handsModelRef.current.send({ image: vid });
+          if (!trackCvRef.current) {
+            trackCvRef.current = document.createElement('canvas');
+            trackCvRef.current.width = 640;
+            trackCvRef.current.height = 360;
+          }
+          const tCtx = trackCvRef.current.getContext('2d', { willReadFrequently: true });
+          tCtx.drawImage(vid, 0, 0, 640, 360);
+          await handsModelRef.current.send({ image: trackCvRef.current });
         } catch (e) {}
         isSendingRef.current = false;
       }
@@ -648,21 +733,24 @@ export default function HandPuzzleApp() {
   };
 
   const startHDrag = (tile) => {
-    draggingRef.current = { tile };
+    const wrap = gridWrapRef.current;
+    const r = wrap ? wrap.getBoundingClientRect() : { left: 0, top: 0, width: 600, height: 600 };
+    const tw = parseFloat(tile.el.style.width) || 90;
+    const th = parseFloat(tile.el.style.height) || 90;
+    draggingRef.current = { tile, wrapRect: r, tw, th };
     tile.el.classList.add('drag');
     tile.el.style.zIndex = '100';
     tile.el.style.transition = 'none';
   };
 
   const moveHDrag = (sx, sy) => {
-    if (!draggingRef.current) return;
-    const wrap = gridWrapRef.current;
-    if (!wrap) return;
-    const r = wrap.getBoundingClientRect();
-    const tw = parseInt(draggingRef.current.tile.el.style.width);
-    const th = parseInt(draggingRef.current.tile.el.style.height);
-    draggingRef.current.tile.el.style.left = sx - r.left - tw / 2 + 'px';
-    draggingRef.current.tile.el.style.top = sy - r.top - th / 2 + 'px';
+    const drag = draggingRef.current;
+    if (!drag) return;
+    const r = drag.wrapRect;
+    const tw = drag.tw;
+    const th = drag.th;
+    drag.tile.el.style.left = (sx - r.left - tw / 2) + 'px';
+    drag.tile.el.style.top = (sy - r.top - th / 2) + 'px';
 
     const ns = nearSlot(sx, sy);
     const isLocked = tilesRef.current.some((t) => t.slot === ns && t.locked);
@@ -670,13 +758,16 @@ export default function HandPuzzleApp() {
   };
 
   const endHDrag = () => {
-    if (!draggingRef.current) return;
-    const tile = draggingRef.current.tile;
-    const tr = tile.el.getBoundingClientRect();
-    const tw = parseInt(tile.el.style.width);
-    const th = parseInt(tile.el.style.height);
+    const drag = draggingRef.current;
+    if (!drag) return;
+    const tile = drag.tile;
+    const tw = drag.tw;
+    const th = drag.th;
+    const left = parseFloat(tile.el.style.left) || 0;
+    const top = parseFloat(tile.el.style.top) || 0;
+    const r = drag.wrapRect;
     sfxDrop();
-    snapTo(tile, nearSlot(tr.left + tw / 2, tr.top + th / 2), tw, th);
+    snapTo(tile, nearSlot(r.left + left + tw / 2, r.top + top + th / 2), tw, th);
     draggingRef.current = null;
     slotsRef.current.forEach((s) => s.el.classList.remove('hl'));
   };
@@ -1262,67 +1353,187 @@ export default function HandPuzzleApp() {
           </footer>
         </div>
 
-        {/* ── CAPTURE SCREEN ── */}
+        {/* ── CAPTURE SCREEN (FIGMA ALIGNED & AR VIEW) ── */}
         <div className={`screen ${phase === 'capture' ? 'active' : ''}`} id="cs">
           <canvas id="cap-ovl" ref={capOvlRef} />
+          
+          {/* AR Viewfinder Reticles */}
+          <div className="ar-viewfinder" ref={arVfRef}>
+            <div className="vf-corner vf-tl" />
+            <div className="vf-corner vf-tr" />
+            <div className="vf-corner vf-bl" />
+            <div className="vf-corner vf-br" />
+            <div className="ar-crosshair" />
+          </div>
+
           <div id="cap-ui">
-            <div className="cap-top">
-              <div className="cap-top-row">
-                <div className="cap-title">📸 Capture Mode</div>
-                <div className="cap-badge">{CFG[diff].label}</div>
-              </div>
-            </div>
-            <div className="cap-bot">
-              <div id="cap-instr">{capInstr}</div>
-              <div id="cap-sub">{capSub}</div>
-              <div className="hd-row" style={{ marginTop: '16px' }}>
-                <div className="hd-item">
-                  <div className={`hd-dot ${handL ? 'on' : ''}`} />
-                  <div className={`hd-text ${handL ? 'on' : ''}`}>Left Hand</div>
+            {/* Top Navigation Bar matching Figma Navbar */}
+            <header className="cap-figma-nav">
+              <div className="cap-nav-inner">
+                <div className="cap-nav-left">
+                  <button type="button" className="cap-back-btn" onClick={quitGame}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="19" y1="12" x2="5" y2="12"></line>
+                      <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Back</span>
+                  </button>
+                  <span className="figma-brand">Hand Puzzle Pro</span>
+                  <div className="cap-live-badge">
+                    <div className="cap-live-dot" />
+                    <span>Live AR</span>
+                  </div>
                 </div>
-                <div className="hd-item">
-                  <div className={`hd-dot ${handR ? 'on' : ''}`} />
-                  <div className={`hd-text ${handR ? 'on' : ''}`}>Right Hand</div>
+
+                <div className="cap-diff-pill">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                  </svg>
+                  <span>{CFG[diff].label}</span>
                 </div>
               </div>
-              <div className="gesture-guide">
-                <div className={`gg-pill ${ggFrame}`}>1. Frame with Index & Thumb</div>
-                <div className={`gg-pill ${ggOpen}`}>2. Open Hands to Capture</div>
-              </div>
-              <div style={{ pointerEvents: 'all', display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '14px', flexWrap: 'wrap' }}>
-                <button className="btn btn-glass btn-xs" onClick={manualSnap}>📸 Click to Snap</button>
-                <label className="btn btn-glass btn-xs" style={{ cursor: 'pointer' }}>
-                  📁 Upload Photo
-                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={uploadImage} />
-                </label>
-                <button className="btn btn-glass btn-xs" onClick={quitGame}>Cancel</button>
+            </header>
+
+            {/* Bottom Floating Control HUD Card (Matching Figma Setup Card) */}
+            <div className="cap-bottom-wrap">
+              <div className="cap-hud-card">
+                <div className="cap-hud-header">
+                  <div className="cap-hud-title" ref={capInstrRef}>Show both hands</div>
+                  <div className="cap-hud-sub" ref={capSubRef}>Frame shot with index & thumb, or open hands for full screen</div>
+                </div>
+
+                {/* Hands Status Chips */}
+                <div className="cap-hands-row">
+                  <div className="cap-hand-chip" ref={hdLRef}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 11V6a2 2 0 0 0-4 0v4"/>
+                      <path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+                      <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+                      <path d="M18 8a2 2 0 0 1 4 4c0 4.418-3.582 8-8 8h-2c-3.14 0-5.836-1.808-7.14-4.44L3.38 12.62a1.5 1.5 0 0 1 2.38-1.84L7.5 12.5"/>
+                    </svg>
+                    <span>Left Hand</span>
+                    <div className="cap-hand-chip-dot" />
+                  </div>
+                  <div className="cap-hand-chip" ref={hdRRef}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'scaleX(-1)' }}>
+                      <path d="M18 11V6a2 2 0 0 0-4 0v4"/>
+                      <path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+                      <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+                      <path d="M18 8a2 2 0 0 1 4 4c0 4.418-3.582 8-8 8h-2c-3.14 0-5.836-1.808-7.14-4.44L3.38 12.62a1.5 1.5 0 0 1 2.38-1.84L7.5 12.5"/>
+                    </svg>
+                    <span>Right Hand</span>
+                    <div className="cap-hand-chip-dot" />
+                  </div>
+                </div>
+
+                {/* Gesture Step Guide */}
+                <div className="cap-steps-row">
+                  <div className="cap-step-pill" ref={ggFrameRef}>
+                    <span className="step-num">1</span>
+                    <span>Frame with Index & Thumb</span>
+                  </div>
+                  <div className="cap-step-pill" ref={ggOpenRef}>
+                    <span className="step-num">2</span>
+                    <span>Open Hands to Capture</span>
+                  </div>
+                </div>
+
+                {/* Figma Action Buttons */}
+                <div className="cap-actions-row">
+                  <button type="button" className="cap-btn-primary" onClick={manualSnap}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    <span>Capture Photo</span>
+                  </button>
+                  <label className="cap-btn-dark" style={{ cursor: 'pointer' }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span>Upload Photo</span>
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={uploadImage} />
+                  </label>
+                  <button type="button" className="cap-btn-dark" onClick={quitGame}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"/>
+                      <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                    <span>Cancel</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── PUZZLE SCREEN ── */}
+        {/* ── PUZZLE SCREEN (FIGMA ALIGNED) ── */}
         <div className={`screen ${phase === 'play' ? 'active' : ''}`} id="ps">
-          <div id="puz-hdr">
-            <div className="ph-diff">{CFG[diff].label}</div>
-            <div className="ph-prog">
-              Tiles: <span>{progVal}</span>/<span>{totalTiles}</span>
+          <div id="puz-hdr" className="figma-navbar">
+            <div className="puz-hdr-inner">
+              <div className="puz-hdr-left">
+                <button type="button" className="cap-back-btn" onClick={quitGame}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                  </svg>
+                  <span>Menu</span>
+                </button>
+                <div className="cap-diff-pill">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                  </svg>
+                  <span>{CFG[diff].label}</span>
+                </div>
+              </div>
+
+              <div className="puz-prog-chip">
+                <span className="puz-prog-label">TILES PLACED</span>
+                <span className="puz-prog-val">{progVal} <span className="puz-prog-slash">/</span> {totalTiles}</span>
+              </div>
+
+              <div className="puz-hdr-right">
+                <div className="puz-timer-badge">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  <span id="puz-timer">{puzTimerText}</span>
+                </div>
+                <button id="pause-btn" onClick={togglePause} title={isPaused ? 'Resume' : 'Pause'}>
+                  {isPaused ? (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                  ) : (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <rect x="6" y="4" width="4" height="16" rx="1"/>
+                      <rect x="14" y="4" width="4" height="16" rx="1"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
-            <div id="puz-timer">{puzTimerText}</div>
-            <button id="pause-btn" onClick={togglePause}>
-              {isPaused ? '▶' : '⏸'}
-            </button>
           </div>
+
           <div id="prog-bar-wrap">
             <div id="prog-bar" style={{ width: `${progPct}%` }} />
           </div>
           <div id="grid-wrap" ref={gridWrapRef} />
           <canvas id="ph-ovl" ref={phOvlRef} />
           <div id="hcur" ref={hcurRef} />
-          <div id="gbadge" className={badgeClass}>{badgeText}</div>
+          <div id="gbadge" ref={gbadgeRef} className={badgeClass}>{badgeText}</div>
         </div>
 
-        {/* ── COMPLETE SCREEN ── */}
+        {/* ── COMPLETE SCREEN (FIGMA ALIGNED) ── */}
         <div className={`screen ${phase === 'complete' ? 'active' : ''}`} id="ws">
           <canvas id="confetti-cv" ref={confettiCvRef} />
           <div className="w-emoji">🎉</div>
@@ -1351,59 +1562,90 @@ export default function HandPuzzleApp() {
           </div>
           {winData.isNew && <div className="new-best">🏆 New Best Time!</div>}
           <div className="w-btns">
-            <button className="btn btn-glass btn-sm" onClick={changeDiff}>⚙️ Difficulty</button>
-            <button className="btn btn-primary btn-sm" onClick={playAgain}>🔄 Replay</button>
-            <button className="btn btn-success btn-sm" onClick={nextLevel}>⏭ Next Level</button>
-            <button className="btn btn-violet btn-sm" onClick={randomLevel}>🎲 Random Grid</button>
+            <button className="cap-btn-primary" onClick={playAgain}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+              <span>Play Again</span>
+            </button>
+            <button className="cap-btn-dark" onClick={nextLevel}>
+              <span>Next Level</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+            <button className="cap-btn-dark" onClick={changeDiff}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+              <span>Difficulty</span>
+            </button>
+            <button className="cap-btn-dark" onClick={randomLevel}>
+              <span>Random</span>
+            </button>
           </div>
         </div>
 
-        {/* ── HOW TO PLAY MODAL ── */}
+        {/* ── HOW TO PLAY MODAL (FIGMA ALIGNED) ── */}
         <div className={`modal-bd ${modal === 'how' ? 'show' : ''}`}>
           <div className="modal">
-            <div className="modal-title">🎮 How to Play</div>
-            <p className="modal-sub">Solve the selfie puzzle using hand gestures</p>
+            <div className="modal-title">How to Play</div>
+            <p className="modal-sub">Solve the selfie puzzle using natural hand gestures</p>
             <div className="htp-step">
               <div className="htp-icon">🔲</div>
               <div className="htp-text">
-                <strong>Frame the shot:</strong> Use the index and thumb of BOTH hands to draw a rectangle in the air.
+                <strong>Frame the shot:</strong> Use index and thumb on BOTH hands to draw a rectangular frame in the air.
               </div>
             </div>
             <div className="htp-step">
               <div className="htp-icon">👐</div>
               <div className="htp-text">
-                <strong>Capture:</strong> When you like the frame, quickly <strong>open all your fingers</strong> to snap the photo!
+                <strong>Capture:</strong> When ready, quickly <strong>open all 10 fingers</strong> to snap the photo instantly!
               </div>
             </div>
             <div className="htp-step">
               <div className="htp-icon">🤏</div>
               <div className="htp-text">
-                <strong>Solve:</strong> Pinch your thumb and index finger to grab a tile, move it, and release to drop.
+                <strong>Solve:</strong> Pinch thumb and index to grab a tile, move it to the right slot, and release to drop.
               </div>
             </div>
             <div className="modal-actions">
-              <button className="btn btn-primary btn-lg" onClick={() => setModal(null)}>
-                Got it! 👍
+              <button className="btn-figma-blue" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setModal(null)}>
+                <span>Got it!</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
               </button>
             </div>
           </div>
         </div>
 
-        {/* ── PAUSE MODAL ── */}
+        {/* ── PAUSE MODAL (FIGMA ALIGNED) ── */}
         <div className={`modal-bd ${modal === 'pause' ? 'show' : ''}`}>
           <div className="modal">
-            <div className="modal-title">⏸ Paused</div>
+            <div className="modal-title">Game Paused</div>
             <div id="pause-time">{puzTimerText}</div>
             <div className="modal-actions">
-              <button className="btn btn-success btn-lg" onClick={togglePause}>
-                ▶ Resume
+              <button className="btn-figma-blue" style={{ width: '100%', justifyContent: 'center' }} onClick={togglePause}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                <span>Resume Game</span>
               </button>
               <div className="modal-row">
-                <button className="btn btn-glass btn-sm" onClick={restartGame}>
-                  🔄 Restart
+                <button className="cap-btn-dark" style={{ flex: 1, justifyContent: 'center' }} onClick={restartGame}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                  </svg>
+                  <span>Restart</span>
                 </button>
-                <button className="btn btn-danger btn-sm" onClick={quitGame}>
-                  🚪 Quit
+                <button className="cap-btn-dark" style={{ flex: 1, justifyContent: 'center', borderColor: 'rgba(244,63,94,0.3)', color: '#f43f5e' }} onClick={quitGame}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                  <span>Quit</span>
                 </button>
               </div>
             </div>
